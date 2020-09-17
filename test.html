@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test simple-mp3-cutter</title>
+    <script src="./src/cutter.js"></script>
+    <script>
+        async function loadFile(id, type) {
+                var input, file;
+
+                if (typeof window.FileReader !== 'function') {
+                    alert("The file API isn't supported on this browser yet.");
+                    return;
+                }
+
+                input = document.getElementById(id);
+                if (!input) {
+                    alert("Um, couldn't find the fileinput element.");
+                } else if (!input.files) {
+                    alert("This browser doesn't seem to support the `files` property of file inputs.");
+                } else if (!input.files[0]) {
+                    alert("Please select a file before clicking 'Load'");
+                } else {
+                    file = input.files[0];
+                    console.log(file);
+                    console.log(URL.createObjectURL(file));
+
+                    let cutterLib = new cutter();
+
+                    await cutterLib.cut(file, 0, 30, function(blob) {
+                        console.log("It is working " + blob);
+                    });
+               }
+        }
+    </script>
+  </head>
+  <body>
+    <header></header>
+    <main>
+        Test of audio library
+        Please upload sound:
+        <input type='file' id='audioinput' accept="audio/mpeg">
+            <br><br>
+        <input type='button' id='btnLoad' value='Load' onclick='loadFile("audioinput", "AUDIO")'>
+    </main>
+    <footer></footer>
+  </body>
+</html>
