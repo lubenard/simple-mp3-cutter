@@ -4,12 +4,22 @@ This is a js library used to cut mp3 easily.
 
 Feel free to contribute!
 
+## Minified version
+
+Minified version has been compiled using [uglifyjs](https://github.com/mishoo/UglifyJS)
+
+to minify the doc, do: 
+
+```
+uglifyjs -e -o src/cutter.min.js src/cutter.js
+```
+
 ## API
 
 ### Create a new cutter
 
 ```
-let cutter = new mp3-cutter(libPath);
+let cutter = new mp3cutter(libPath);
 ```
 
 ```libPath``` is optionnal, default path is ```./lib```

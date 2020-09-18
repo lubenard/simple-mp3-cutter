@@ -1,22 +1,17 @@
-class cutter {
+class mp3cutter {
 	//libPath must end with a slash
 	constructor(libPath = "./lib/") {
         self.Mp3LameEncoderConfig = {
-			memoryInitializerPrefixURL: libPath,   
+			memoryInitializerPrefixURL: libPath,
 			TOTAL_MEMORY: 1073741824,
 		};
-		this.isEncoderLoaded = false;
 		this.libPath = libPath;
-	}
 
-	async loadEncoder() {
 		var ref = document.getElementsByTagName("script")[0];
 		var script = document.createElement("script");
 
 		script.src = this.libPath + "Mp3LameEncoder.min.js";
 		ref.parentNode.insertBefore(script, ref);
-
-		script.onload = Promise.resolve(1);
 	}
 
 	async cut(src, start, end, callback , bitrate = 192) {
@@ -27,11 +22,6 @@ class cutter {
 			throw 'Start is bigger than end!';
 		else if (start < 0 || end < 0)
 			throw 'Start or end is negative, cannot process';
-		
-		if (this.isEncoderLoaded == false) {
-			await this.loadEncoder();
-			this.isEncoderLoaded = true;
-		}
 
 		// Convert blob into ArrayBuffer
 		let buffer = await new Response(src).arrayBuffer();
@@ -50,7 +40,7 @@ class cutter {
 			// Copy from old buffer to new with the right slice.
 			// At this point, the audio has been cut
 			for (var i = 0; i < decodedData.numberOfChannels; i++) {
-				newBuffer.copyToChannel(decodedData.getChannelData(i).slice(start, end), i)
+				newBuffer.copyToChannel(decodedData.getChannelData(i).slice(computedStart, computedEnd), i)
 			}
 
 			console.log(newBuffer);
