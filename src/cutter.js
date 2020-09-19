@@ -1,17 +1,23 @@
 class mp3cutter {
 	//libPath must end with a slash
-	constructor(libPath = "./lib/") {
+	constructor(libPath = "./lib/", log = false) {
         self.Mp3LameEncoderConfig = {
 			memoryInitializerPrefixURL: libPath,
 			TOTAL_MEMORY: 1073741824,
 		};
 		this.libPath = libPath;
+		this.logger = log;
 
 		var ref = document.getElementsByTagName("script")[0];
 		var script = document.createElement("script");
 
 		script.src = this.libPath + "Mp3LameEncoder.min.js";
 		ref.parentNode.insertBefore(script, ref);
+	}
+
+	logger(message) {
+		if (this.log)
+			console.log(message);
 	}
 
 	async cut(src, start, end, callback , bitrate = 192) {
@@ -29,7 +35,7 @@ class mp3cutter {
 
 		//Convert ArrayBuffer into AudioBuffer
 		audioContext.decodeAudioData(buffer).then(function(decodedData) {
-			console.log(decodedData);
+			logger(decodedData);
 			//Compute start and end values in secondes
 			let computedStart = decodedData.length * start / decodedData.duration;
 			let computedEnd = decodedData.length * end / decodedData.duration;
@@ -43,7 +49,7 @@ class mp3cutter {
 				newBuffer.copyToChannel(decodedData.getChannelData(i).slice(computedStart, computedEnd), i)
 			}
 
-			console.log(newBuffer);
+			logger(newBuffer);
 
 			// Bitrate is  by default 192, but can be whatever you want
 			let encoder = new Mp3LameEncoder(newBuffer.sampleRate, bitrate);
@@ -55,7 +61,7 @@ class mp3cutter {
 				length: newBuffer.length,
 			};
 
-			console.log(formattedArray);
+			logger(formattedArray);
 
 			//Encode into mp3
 			encoder.encode(formattedArray.channels);
@@ -63,9 +69,9 @@ class mp3cutter {
 			//When encoder has finished
 			let compressed_blob = encoder.finish();
 
-			console.log(compressed_blob);
+			logger(compressed_blob);
 
-			console.log(URL.createObjectURL(compressed_blob));
+			logger(URL.createObjectURL(compressed_blob));
 
 			callback(compressed_blob);
 		});
