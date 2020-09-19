@@ -19,11 +19,12 @@ uglifyjs -e -o src/cutter.min.js src/cutter.js
 ### Create a new cutter
 
 ```
-let cutter = new mp3cutter(libPath);
+let cutter = new mp3cutter(libPath, debug);
 ```
 
 ```libPath``` is optionnal, default path is ```./lib```
 
+```debug``` is optionnal. It print debug log. Default value is false.
 
 ### Cut a mp3
 
@@ -48,3 +49,19 @@ That's it !
 This library is heavily inspired by [audio-cutter](https://github.com/meowtec/audio-cutter)
 
 The encoder used is [mp3-lame-encoder-js](https://github.com/higuma/mp3-lame-encoder-js)
+
+
+## Works better with an example !
+
+Here is a more concrete example on how to use this library
+
+```javascript
+function getMyMp3Cut(blob) {
+	let cutter = new mp3cutter();
+
+	cutter.cut(blob, 0, 30, function(cuttedBlob) {
+		console.log("My blob has been cutted! ");
+		console.log(cuttedBlob);
+	});
+}
+```
