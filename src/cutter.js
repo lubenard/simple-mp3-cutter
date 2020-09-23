@@ -6,7 +6,7 @@ class mp3cutter {
 			TOTAL_MEMORY: 1073741824,
 		};
 		this.libPath = libPath;
-		this.logger = log;
+		this.log = log;
 
 		var ref = document.getElementsByTagName("script")[0];
 		var script = document.createElement("script");
@@ -29,51 +29,58 @@ class mp3cutter {
 		else if (start < 0 || end < 0)
 			throw 'Start or end is negative, cannot process';
 
+		this.start = start;
+		this.end = end;
+		this.callback = callback;
+		this.bitrate = bitrate;
+
 		// Convert blob into ArrayBuffer
 		let buffer = await new Response(src).arrayBuffer();
-		let audioContext = new AudioContext();
+		this.audioContext = new AudioContext();
 
 		//Convert ArrayBuffer into AudioBuffer
-		audioContext.decodeAudioData(buffer).then(function(decodedData) {
-			logger(decodedData);
-			//Compute start and end values in secondes
-			let computedStart = decodedData.length * start / decodedData.duration;
-			let computedEnd = decodedData.length * end / decodedData.duration;
+		this.audioContext.decodeAudioData(buffer).then((decodedData) => this.computeData(decodedData));
+	}
 
-			//Create a new buffer
-			const newBuffer = audioContext.createBuffer(decodedData.numberOfChannels, computedEnd - computedStart , decodedData.sampleRate)
+	computeData (decodedData) {
+		this.logger(decodedData);
+		//Compute start and end values in secondes
+		let computedStart = decodedData.length * this.start / decodedData.duration;
+		let computedEnd = decodedData.length * this.end / decodedData.duration;
 
-			// Copy from old buffer to new with the right slice.
-			// At this point, the audio has been cut
-			for (var i = 0; i < decodedData.numberOfChannels; i++) {
-				newBuffer.copyToChannel(decodedData.getChannelData(i).slice(computedStart, computedEnd), i)
-			}
+		//Create a new buffer
+		const newBuffer = this.audioContext.createBuffer(decodedData.numberOfChannels, computedEnd - computedStart , decodedData.sampleRate)
 
-			logger(newBuffer);
+		// Copy from old buffer to new with the right slice.
+		// At this point, the audio has been cut
+		for (var i = 0; i < decodedData.numberOfChannels; i++) {
+			newBuffer.copyToChannel(decodedData.getChannelData(i).slice(computedStart, computedEnd), i)
+		}
 
-			// Bitrate is  by default 192, but can be whatever you want
-			let encoder = new Mp3LameEncoder(newBuffer.sampleRate, bitrate);
+		this.logger(newBuffer);
 
-			//Recreate Object from AudioBuffer
-			let formattedArray = {
-				channels: Array.apply(null, { length: (newBuffer.numberOfChannels - 1) - 0 + 1 }).map((v, i) => i + 0).map(i => newBuffer.getChannelData(i)),
-				sampleRate: newBuffer.sampleRate,
-				length: newBuffer.length,
-			};
+		// Bitrate is  by default 192, but can be whatever you want
+		let encoder = new Mp3LameEncoder(newBuffer.sampleRate, this.bitrate);
 
-			logger(formattedArray);
+		//Recreate Object from AudioBuffer
+		let formattedArray = {
+			channels: Array.apply(null, { length: (newBuffer.numberOfChannels - 1) - 0 + 1 }).map((v, i) => i + 0).map(i => newBuffer.getChannelData(i)),
+			sampleRate: newBuffer.sampleRate,
+			length: newBuffer.length,
+		};
 
-			//Encode into mp3
-			encoder.encode(formattedArray.channels);
+		this.logger(formattedArray);
 
-			//When encoder has finished
-			let compressed_blob = encoder.finish();
+		//Encode into mp3
+		encoder.encode(formattedArray.channels);
 
-			logger(compressed_blob);
+		//When encoder has finished
+		let compressed_blob = encoder.finish();
 
-			logger(URL.createObjectURL(compressed_blob));
+		this.logger(compressed_blob);
 
-			callback(compressed_blob);
-		});
+		this.logger(URL.createObjectURL(compressed_blob));
+
+		this.callback(compressed_blob);
 	}
 }
