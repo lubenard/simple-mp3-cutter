@@ -1,5 +1,8 @@
 # Simple mp3 cutter
 
+![](https://img.badgesize.io/lubenard/simple-mp3-cutter/master/src/cutter.js)
+![](https://img.badgesize.io/lubenard/simple-mp3-cutter/master/src/cutter.min.js?label=Minified_version)
+
 This is a js library used to cut mp3 easily.
 
 Feel free to contribute!
