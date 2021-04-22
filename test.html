@@ -25,7 +25,7 @@
                     console.log(file);
                     console.log(URL.createObjectURL(file));
 
-                    let cutterLib = new cutter();
+                    let cutterLib = new mp3cutter();
 
                     await cutterLib.cut(file, 0, 30, function(blob) {
                         console.log("It is working " + blob);
